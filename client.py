@@ -1,14 +1,19 @@
 import asyncio
+import time
+
 import websockets
 import json
 
-async def receive_data():
-    uri = "ws://localhost:8765"
+async def fetch_data():
+    uri = "ws://localhost:8765"  # Адрес вашего WebSocket сервера
     async with websockets.connect(uri) as websocket:
-        while True:
-            response = await websocket.recv()
-            data = json.loads(response)
-            print("Received data:", data)
+        async for message in websocket:
+            data = json.loads(message)
+            yield data
+
+async def process_data():
+    async for data in fetch_data():
+        print("Received data:", data)
 
 if __name__ == "__main__":
-    asyncio.run(receive_data())
+    asyncio.run(process_data())
